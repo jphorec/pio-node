@@ -4,6 +4,7 @@ import * as cdk from 'aws-cdk-lib';
 import { PioNodeStack } from '../lib/pio-node-stack';
 
 const app = new cdk.App();
+
 new PioNodeStack(app, 'PioNodeStack', {
   nodeMoniker: "pizza-time",
   chainId: 'pio-testnet-1',

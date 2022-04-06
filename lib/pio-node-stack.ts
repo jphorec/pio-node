@@ -5,6 +5,7 @@ import * as path from 'path';
 import { KeyPair } from 'cdk-ec2-key-pair';
 import { Asset } from 'aws-cdk-lib/aws-s3-assets';
 import { Construct } from 'constructs';
+import { Size } from "aws-cdk-lib";
 
 
 export interface PioNodeProps extends cdk.StackProps {
@@ -49,7 +50,7 @@ export class PioNodeStack extends cdk.Stack {
     securityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(22), 'Allow SSH Access')
 
     const role = new iam.Role(this, 'ec2Role', {
-      assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com')
+      assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
     })
 
     role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'))
@@ -60,16 +61,24 @@ export class PioNodeStack extends cdk.Stack {
       cpuType: ec2.AmazonLinuxCpuType.X86_64
     });
 
+    const rootVolume: ec2.BlockDevice = {
+      deviceName: '/dev/xvda', 
+      volume: ec2.BlockDeviceVolume.ebs(800), // Override the volume size in Gibibytes (GiB)
+    };
+
     // Create the instance using the Security Group, AMI, and KeyPair defined in the VPC created
     const ec2Instance = new ec2.Instance(this, 'Instance', {
       instanceName: props?.instanceName ? props.instanceName : "pio-node",
       vpc,
-      instanceType: ec2.InstanceType.of(ec2.InstanceClass.T2, ec2.InstanceSize.MICRO),
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.M5, ec2.InstanceSize.LARGE),
       machineImage: ami,
       securityGroup: securityGroup,
       keyName: key.keyPairName,
-      role: role
+      detailedMonitoring: true,
+      role: role,
+      blockDevices: [rootVolume]
     });
+
 
     // Create an asset that will be used as part of User Data to run on first load
     const asset = new Asset(this, 'Asset', { path: path.join(__dirname, '../src/config.sh') });
@@ -99,19 +108,19 @@ function buildArgsString(props?: PioNodeProps): string {
   var args: string = "";
 
   if (props?.chainId != undefined) {
-    args = args + ` --chain-id ${props.chainId}`
+    args = args + ` -c ${props.chainId}`
   }
   if (props?.chainVersion != undefined) {
-    args = args + ` --chain-version ${props.chainVersion}`
+    args = args + ` -v ${props.chainVersion}`
   }
   if (props?.goVersion != undefined) {
-    args = args + ` --go-version ${props.goVersion}`
+    args = args + ` -g ${props.goVersion}`
   }
   if (props?.nodeMoniker != undefined) {
-    args = args + ` --moniker ${props.nodeMoniker}`
+    args = args + ` -m ${props.nodeMoniker}`
   }
   if (props?.provenanceUrl != undefined) {
-    args = args + ` --prov-url ${props.provenanceUrl}`
+    args = args + ` -p ${props.provenanceUrl}`
   }
 
   return args
