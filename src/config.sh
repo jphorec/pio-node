@@ -33,10 +33,10 @@ echo "export PIO_HOME=/home/pio" >> /etc/environment
 
 
 cd /home/pio
-
 # Download latest snapshot from provenance quicksync
 wget -c $SNAPSHOT_URL -O - | tar -xz
 
+cd /
 # Install golang
 echo "Installing go..."
 wget https://go.dev/dl/"$GO_VERSION".tar.gz
@@ -73,6 +73,7 @@ source /etc/environment
 
 export HOME=/root
 
+# Install provenanced
 cd /
 echo "Installing provenance..."
 wget -O provenance.zip $PROV_URL
@@ -91,6 +92,7 @@ mv genesis.json $PIO_HOME/config
 curl https://raw.githubusercontent.com/provenance-io/"$CHAIN_VERSION"/main/"$CHAIN_ID"/config.toml > config.toml
 mv config.toml $PIO_HOME/config
 
+# Install cosmovisor
 echo "Installing cosmovisor..."
 go install github.com/provenance-io/cosmovisor/cmd/cosmovisor@latest
 
@@ -108,7 +110,7 @@ ln -sf $PIO_HOME/cosmovisor/genesis/bin $PIO_HOME/cosmovisor/genesis/current
 cp $(which provenanced) $PIO_HOME/cosmovisor/genesis/bin 
 ln -sf $PIO_HOME/cosmovisor/genesis/bin/provenanced $(which provenanced)
 
-# echo "Strating provenance..."
+# Start chain with provenanced as background process 
+echo "Strating provenance..."
 # cosmovisor start --"$CHAIN_VERSION" --home $PIO_HOME --p2p.seeds 2de841ce706e9b8cdff9af4f137e52a4de0a85b2@104.196.26.176:26656,add1d50d00c8ff79a6f7b9873cc0d9d20622614e@34.71.242.51:26656 --x-crisis-skip-assert-invariants
-
 provenanced start --"$CHAIN_VERSION" --home $PIO_HOME --p2p.seeds 2de841ce706e9b8cdff9af4f137e52a4de0a85b2@104.196.26.176:26656,add1d50d00c8ff79a6f7b9873cc0d9d20622614e@34.71.242.51:26656 --x-crisis-skip-assert-invariants &
