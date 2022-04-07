@@ -1,8 +1,10 @@
 # Welcome to the pio-node AWS CDK construct
 
-This CDK application stands up an AWS EC2 instance with an 800GB volume. This instance is provisioned to build a full [provenance](https://provenance.io) blockchain node and downloads a [quicksync](https://provenance.io/quicksync) snapshot to speed up the node instantiation process. 
+This CDK application stands up an AWS EC2 instance with an 800GB volume. 
 
+This instance is provisioned to build a full [provenance](https://provenance.io) blockchain node and downloads a [quicksync](https://provenance.io/quicksync) snapshot to speed up the node instantiation process. 
 
+Eventually this project will also include the ability to turn the node into a validator. 
 
 ## Useful commands
 
@@ -12,6 +14,14 @@ This CDK application stands up an AWS EC2 instance with an 800GB volume. This in
 * `cdk deploy`      deploy this stack to your default AWS account/region
 * `cdk diff`        compare deployed stack with current state
 * `cdk synth`       emits the synthesized CloudFormation template
+
+## Infrastructure
+
+Currently this app creates an m5.large EC2 instance with 800GB of data. Only port 22 is exposed on the server out of the box.
+
+If wanting to expose the rpc or grpc ports you will need to update the security groups inbound rules. 
+
+A load balancer is currently being worked on to be added to safely expose all needed service mesh ports (AWS provides ddos protection for free over their load balancers)
 
 ## Getting started
 

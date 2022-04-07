@@ -5,14 +5,14 @@
 
 set -e
 
-SNAPSHOT_URL=https://storage.googleapis.com/storage/v1/b/provenance-testnet-backups/o/latest-data.tar.gz?alt=media
-
 GO_VERSION=go1.18.linux-amd64
 # Default to latest release of the chain
 PROV_URL=$(curl -s https://api.github.com/repos/provenance-io/provenance/releases/latest | grep zipball_url | cut -d '"' -f 4)
 CHAIN_VERSION=testnet
 CHAIN_ID=pio-testnet-1
 MONIKER=cdk-generated-node
+
+SNAPSHOT_URL=https://storage.googleapis.com/storage/v1/b/provenance-"$CHAIN_VERSION"-backups/o/latest-data.tar.gz?alt=media
 
 while getopts ":p:v:g:c:m:" options; do
     case "${options}" in
@@ -112,5 +112,5 @@ ln -sf $PIO_HOME/cosmovisor/genesis/bin/provenanced $(which provenanced)
 
 # Start chain with provenanced as background process 
 echo "Strating provenance..."
-# cosmovisor start --"$CHAIN_VERSION" --home $PIO_HOME --p2p.seeds 2de841ce706e9b8cdff9af4f137e52a4de0a85b2@104.196.26.176:26656,add1d50d00c8ff79a6f7b9873cc0d9d20622614e@34.71.242.51:26656 --x-crisis-skip-assert-invariants
-provenanced start --"$CHAIN_VERSION" --home $PIO_HOME --p2p.seeds 2de841ce706e9b8cdff9af4f137e52a4de0a85b2@104.196.26.176:26656,add1d50d00c8ff79a6f7b9873cc0d9d20622614e@34.71.242.51:26656 --x-crisis-skip-assert-invariants &
+cosmovisor start --"$CHAIN_VERSION" --home $PIO_HOME --p2p.seeds 2de841ce706e9b8cdff9af4f137e52a4de0a85b2@104.196.26.176:26656,add1d50d00c8ff79a6f7b9873cc0d9d20622614e@34.71.242.51:26656 --x-crisis-skip-assert-invariants
+# provenanced start --"$CHAIN_VERSION" --home $PIO_HOME --p2p.seeds 2de841ce706e9b8cdff9af4f137e52a4de0a85b2@104.196.26.176:26656,add1d50d00c8ff79a6f7b9873cc0d9d20622614e@34.71.242.51:26656 --x-crisis-skip-assert-invariants &
