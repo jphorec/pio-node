@@ -11,5 +11,5 @@ new PioNodeStack(app, 'PioNodeStack', {
   instanceName: 'pio-node-testnet',
   goVersion: 'go1.18.linux-amd64',
   chainVersion: 'testnet',
-  provenanceUrl: 'https://github.com/jphorec/provenance/archive/refs/tags/jphorec-1.8.1.zip'
+  provenanceUrl: 'https://github.com/jphorec/provenance/archive/refs/tags/v1.8.1-jphorec.zip'
 });
