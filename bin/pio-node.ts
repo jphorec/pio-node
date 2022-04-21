@@ -6,9 +6,6 @@ import { PioNodeStack } from '../lib/pio-node-stack';
 const app = new cdk.App();
 
 new PioNodeStack(app, 'PioNodeStack', {
-  nodeMoniker: "pizza-time",
-  chainId: 'pio-testnet-1',
   instanceName: 'pio-node-testnet',
-  goVersion: 'go1.18.linux-amd64',
-  chainVersion: 'testnet'
+  nodeMoniker: 'aws-node-by-cdk'
 });
