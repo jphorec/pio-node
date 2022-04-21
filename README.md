@@ -25,13 +25,17 @@ A load balancer is currently being worked on to be added to safely expose all ne
 
 ## Getting started
 
-Install aws command line tool: 
+Install aws command line tool from this guide: 
 
-```
 https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
-```
 
-And configure your command line app using `aws configure`.  You will need to have an aws account key and secret which can be generated in the IAM console. 
+Next configure your command line app using `aws configure`.  
+
+You will need to have an aws account key and secret which can be generated in the IAM console.
+
+A guide to generating credentials can be found here: 
+
+https://docs.aws.amazon.com/powershell/latest/userguide/pstools-appendix-sign-up.html
 
 Install aws-cdk command line tool: 
 
