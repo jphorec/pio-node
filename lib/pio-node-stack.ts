@@ -110,6 +110,7 @@ export class PioNodeStack extends cdk.Stack {
     const pioInstance = new ec2.Instance(this, 'pio node', {
       instanceName: props?.instanceName ? props.instanceName : "pio-node",
       vpc,
+      vpcSubnets: vpc.selectSubnets({subnetType: ec2.SubnetType.PUBLIC}),
       instanceType: ec2.InstanceType.of(ec2.InstanceClass.M5, ec2.InstanceSize.LARGE),
       machineImage: ami,
       securityGroup: securityGroup,

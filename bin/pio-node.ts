@@ -7,7 +7,7 @@ const app = new cdk.App();
 
 new PioNodeStack(app, 'PioNodeStack', {
   instanceName: 'pio-node-mainnet',
-  nodeMoniker: 'jhorecny-validator',
+  nodeMoniker: 'JAM-validator',
   chainId: 'pio-mainnet-1',
   chainVersion: 'mainnet'
 });
