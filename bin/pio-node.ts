@@ -6,6 +6,8 @@ import { PioNodeStack } from '../lib/pio-node-stack';
 const app = new cdk.App();
 
 new PioNodeStack(app, 'PioNodeStack', {
-  instanceName: 'pio-node-testnet',
-  nodeMoniker: 'aws-node-by-cdk'
+  instanceName: 'pio-node-mainnet',
+  nodeMoniker: 'jhorecny-validator',
+  chainId: 'pio-mainnet-1',
+  chainVersion: 'mainnet'
 });
