@@ -12,8 +12,6 @@ CHAIN_VERSION=testnet
 CHAIN_ID=pio-testnet-1
 MONIKER=cdk-generated-node
 
-SNAPSHOT_URL=https://storage.googleapis.com/storage/v1/b/provenance-"$CHAIN_VERSION"-backups/o/latest-data.tar.gz?alt=media
-
 while getopts ":p:v:g:c:m:" options; do
     case "${options}" in
         p) PROV_URL=${OPTARG};;
@@ -23,6 +21,8 @@ while getopts ":p:v:g:c:m:" options; do
         m) MONIKER=${OPTARG};;
     esac
 done
+
+SNAPSHOT_URL=https://storage.googleapis.com/storage/v1/b/provenance-"$CHAIN_VERSION"-backups/o/latest-data-indexed.tar.gz?alt=media
 
 
 echo "building with the following parameters: $CHAIN_VERSION $CHAIN_ID $MONIKER $GO_VERSION $PROV_URL"
@@ -84,13 +84,13 @@ cd provenance
 make clean 
 make install
 
-provenanced init $MONIKER --"$CHAIN_VERSION"
+provenanced init $MONIKER --chain-id $CHAIN_ID
 
 curl https://raw.githubusercontent.com/provenance-io/"$CHAIN_VERSION"/main/"$CHAIN_ID"/genesis.json > genesis.json
-mv genesis.json $PIO_HOME/config
+mv -f genesis.json $PIO_HOME/config
 
-curl https://raw.githubusercontent.com/provenance-io/"$CHAIN_VERSION"/main/"$CHAIN_ID"/config.toml > config.toml
-mv config.toml $PIO_HOME/config
+# curl https://raw.githubusercontent.com/provenance-io/"$CHAIN_VERSION"/main/"$CHAIN_ID"/config.toml > config.toml
+# mv -f config.toml $PIO_HOME/config
 
 # Install cosmovisor
 echo "Installing cosmovisor..."
@@ -110,7 +110,11 @@ ln -sf $PIO_HOME/cosmovisor/genesis/bin $PIO_HOME/cosmovisor/genesis/current
 cp $(which provenanced) $PIO_HOME/cosmovisor/genesis/bin 
 ln -sf $PIO_HOME/cosmovisor/genesis/bin/provenanced $(which provenanced)
 
+# Open the rpc port to external connections
+iptables -t nat -I PREROUTING -p tcp -d 0.0.0.0/0 --dport 26657 -j DNAT --to-destination 127.0.0.1:26657
+sysctl -w net.ipv4.conf.eth0.route_localnet=1
+
 # Start chain with provenanced as background process 
 echo "Strating provenance..."
-cosmovisor start --"$CHAIN_VERSION" --home $PIO_HOME --p2p.seeds 2de841ce706e9b8cdff9af4f137e52a4de0a85b2@104.196.26.176:26656,add1d50d00c8ff79a6f7b9873cc0d9d20622614e@34.71.242.51:26656 --x-crisis-skip-assert-invariants
-# provenanced start --"$CHAIN_VERSION" --home $PIO_HOME --p2p.seeds 2de841ce706e9b8cdff9af4f137e52a4de0a85b2@104.196.26.176:26656,add1d50d00c8ff79a6f7b9873cc0d9d20622614e@34.71.242.51:26656 --x-crisis-skip-assert-invariants &
+cosmovisor start --home $PIO_HOME --p2p.seeds 4bd2fb0ae5a123f1db325960836004f980ee09b4@seed-0.provenance.io:26656, 048b991204d7aac7209229cbe457f622eed96e5d@seed-1.provenance.io:26656 --x-crisis-skip-assert-invariants
+# provenanced start --home $PIO_HOME --p2p.seeds 2de841ce706e9b8cdff9af4f137e52a4de0a85b2@104.196.26.176:26656,add1d50d00c8ff79a6f7b9873cc0d9d20622614e@34.71.242.51:26656 --x-crisis-skip-assert-invariants &

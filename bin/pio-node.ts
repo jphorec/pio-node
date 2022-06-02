@@ -5,9 +5,10 @@ import { PioNodeStack } from '../lib/pio-node-stack';
 
 const app = new cdk.App();
 
-new PioNodeStack(app, 'PioNodeStack', {
+new PioNodeStack(app, 'PioMainnetStack', {
   instanceName: 'pio-node-mainnet',
-  nodeMoniker: 'JAM-validator',
+  nodeMoniker: 'jam-validator',
   chainId: 'pio-mainnet-1',
-  chainVersion: 'mainnet'
+  chainVersion: 'mainnet',
+  provenanceUrl: 'https://github.com/provenance-io/provenance/archive/refs/tags/v1.10.0.zip'
 });
