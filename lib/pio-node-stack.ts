@@ -5,6 +5,7 @@ import * as path from 'path';
 import { KeyPair } from 'cdk-ec2-key-pair';
 import { Asset } from 'aws-cdk-lib/aws-s3-assets';
 import { Construct } from 'constructs';
+import * as kms from 'aws-cdk-lib/aws-kms';
 import { Size } from "aws-cdk-lib";
 import { type } from "os";
 import internal = require("events");
@@ -158,6 +159,12 @@ export class PioNodeStack extends cdk.Stack {
       bucketKey: asset.s3ObjectKey
     });
 
+    const kmsKey = new kms.Key(this, 'validator-key', {
+      alias: 'alias/validator-key',
+      description: 'KMS key for encrypting/decrypting validator key',
+      enableKeyRotation: false,
+    });
+
     // Create file arguments
     const args: string = buildArgsString(props); 
     pioInstance.userData.addExecuteFileCommand({
@@ -169,10 +176,13 @@ export class PioNodeStack extends cdk.Stack {
     // Create outputs for connecting
     new cdk.CfnOutput(this, 'Built with arguemnts', { value: args });
     new cdk.CfnOutput(this, 'IP Address', { value: pioInstance.instancePublicIp });
+    new cdk.CfnOutput(this, 'Private IP Address:', { value: tmkmsInstance.instancePrivateIp });
     new cdk.CfnOutput(this, 'Key Name', { value: key.keyPairName });
     new cdk.CfnOutput(this, 'Download Key Command', { value: `aws secretsmanager get-secret-value --secret-id ec2-ssh-key/${keyPairName}/private --query SecretString --output text > ${keyPairName}.pem && chmod 400 ${keyPairName}.pem` })
     new cdk.CfnOutput(this, 'ssh command', { value: `ssh -i ${keyPairName}.pem -o IdentitiesOnly=yes ec2-user@${pioInstance.instancePublicIp}` })
-
+    new cdk.CfnOutput(this, 'key-arn', {
+      value: kmsKey.keyArn,
+    });
     //new cdk.CfnOutput(this, 'tmkms ip address', { value: tmkmsInstance.instancePrivateIp });
   }
 }
