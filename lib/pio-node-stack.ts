@@ -79,6 +79,11 @@ export class PioNodeStack extends cdk.Stack {
     tmkmsSecurityGroup.addIngressRule(ec2.Peer.ipv4(vpc.vpcCidrBlock), ec2.Port.tcp(22), 'intenral ssh ingress')
     tmkmsSecurityGroup.addEgressRule(ec2.Peer.ipv4(vpc.vpcCidrBlock), ec2.Port.tcp(26669), 'internal tmkms')
     tmkmsSecurityGroup.addIngressRule(ec2.Peer.ipv4(vpc.vpcCidrBlock), ec2.Port.tcp(26669), 'internal tmkms')
+    tmkmsSecurityGroup.addEgressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(80), 'External http')
+    tmkmsSecurityGroup.addEgressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(443), 'External https')
+    tmkmsSecurityGroup.addEgressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(26656), 'External cosmos')
+    tmkmsSecurityGroup.addEgressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(26657), 'External cosmos')
+
 
 
     const role = new iam.Role(this, 'ec2Role', {
