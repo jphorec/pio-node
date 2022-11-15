@@ -5,36 +5,13 @@
 
 set -e
 
-GO_VERSION=go1.18.linux-amd64
-# Default to latest release of the chain
-PROV_URL=$(curl -s https://api.github.com/repos/provenance-io/provenance/releases/latest | grep zipball_url | cut -d '"' -f 4)
-CHAIN_VERSION=testnet
-CHAIN_ID=pio-testnet-1
-MONIKER=cdk-generated-node
-
-while getopts ":p:v:g:c:m:" options; do
-    case "${options}" in
-        p) PROV_URL=${OPTARG};;
-        v) CHAIN_VERSION=${OPTARG};;
-        g) GO_VERSION=${OPTARG};;
-        c) CHAIN_ID=${OPTARG};;
-        m) MONIKER=${OPTARG};;
-    esac
-done
-
-SNAPSHOT_URL=https://storage.googleapis.com/storage/v1/b/provenance-"$CHAIN_VERSION"-backups/o/latest-data-indexed.tar.gz?alt=media
-
+sudo dnf install wget which iptables -y
 
 echo "building with the following parameters: $CHAIN_VERSION $CHAIN_ID $MONIKER $GO_VERSION $PROV_URL"
 
-mkdir /home/pio
-export PIO_HOME=/home/pio
-echo "export PIO_HOME=/home/pio" >> /etc/environment
-
-
-cd /home/pio
-# Download latest snapshot from provenance quicksync
-wget -c $SNAPSHOT_URL -O - | tar -xz
+mkdir $PIO_HOME
+export PIO_HOME=$PIO_HOME
+echo "export PIO_HOME=$PIO_HOME" >> /etc/environment
 
 cd /
 # Install golang
@@ -55,15 +32,9 @@ yum install snappy-devel -y
 
 # Install level-db
 echo "Installing leveldb..."
-wget "https://github.com/google/leveldb/archive/v1.20.tar.gz" -P /tmp
-tar xvf /tmp/v1.20.tar.gz -C /tmp
-cd /tmp/leveldb-1.20
-make && sudo scp -r out-static/lib* out-shared/lib* "/usr/local/lib"
-cd include && sudo scp -r leveldb /usr/local/include
-cd /usr/local/lib
-sudo ln -s libleveldb.so.1.20 libleveldb.so.1d
-sudo ldconfig
-
+sudo dnf makecache --refresh
+sudo dnf -y install leveldb
+sudo dnf -y install leveldb-devel
 export LD_LIBRARY_PATH=/usr/local/lib
 
 echo "export LD_LIBRARY_PATH=/usr/local/lib" >> /etc/environment
@@ -110,11 +81,7 @@ ln -sf $PIO_HOME/cosmovisor/genesis/bin $PIO_HOME/cosmovisor/genesis/current
 cp $(which provenanced) $PIO_HOME/cosmovisor/genesis/bin 
 ln -sf $PIO_HOME/cosmovisor/genesis/bin/provenanced $(which provenanced)
 
-# Open the rpc port to external connections
-iptables -t nat -I PREROUTING -p tcp -d 0.0.0.0/0 --dport 26657 -j DNAT --to-destination 127.0.0.1:26657
-sysctl -w net.ipv4.conf.eth0.route_localnet=1
+rm -rf $PIO_HOME/data
 
 # Start chain with provenanced as background process 
-echo "Strating provenance..."
-cosmovisor start --home $PIO_HOME --p2p.seeds 4bd2fb0ae5a123f1db325960836004f980ee09b4@seed-0.provenance.io:26656, 048b991204d7aac7209229cbe457f622eed96e5d@seed-1.provenance.io:26656 --x-crisis-skip-assert-invariants
 # provenanced start --home $PIO_HOME --p2p.seeds 2de841ce706e9b8cdff9af4f137e52a4de0a85b2@104.196.26.176:26656,add1d50d00c8ff79a6f7b9873cc0d9d20622614e@34.71.242.51:26656 --x-crisis-skip-assert-invariants &

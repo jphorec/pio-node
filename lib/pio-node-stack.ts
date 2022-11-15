@@ -167,10 +167,7 @@ export class PioNodeStack extends cdk.Stack {
 
     // Create file arguments
     const args: string = buildArgsString(props); 
-    pioInstance.userData.addExecuteFileCommand({
-      filePath: localPath,
-      arguments: `--verbose -y ${args}` 
-    });
+    pioInstance.userData.addCommands("sudo yum update -y && sudo amazon-linux-extras install docker && sudo service docker start && sudo usermod -a -G docker ec2-user && sudo docker volume create pio-volume && sudo docker run -d -v pio-volume:/homne/pio jphorec/prov-mainnet:latest")
     asset.grantRead(pioInstance.role);
 
     // Create outputs for connecting

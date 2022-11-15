@@ -1,0 +1,14 @@
+FROM jphorec/prov-node
+
+ENV CHAIN_VERSION=mainnet
+
+ADD entrypoint.sh entrypoint.sh
+RUN chmod 777 entrypoint.sh
+
+EXPOSE 9090
+EXPOSE 26657
+EXPOSE 26656
+EXPOSE 80
+EXPOSE 443
+
+CMD /entrypoint.sh
